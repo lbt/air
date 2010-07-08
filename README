@@ -1,0 +1,32 @@
+AIR is AMQP Interoperable RPC
+=============================
+
+When using AMQP to handle the majority of inter-system comms it is
+sometimes useful to allow point-2-point RPC-like calls.
+
+AIR provides a simple framework that allows request/response messages
+to be sent via AMQP.
+
+At the AMQP level services are addressed using a pre-shared routing
+key (which may be shared) and replies are sent to an ad-hoc UUID using
+the standard AMQP reply-to header.
+
+AIR uses json to encode args in the RPC call/response.
+
+The AIR calling wrapper contains a message ID, parameters and a deadline.
+
+The AIR response wrapper contains a message ID and the response.
+
+INSTALL
+=======
+ rabbitmqctl add_vhost AIR
+ rabbitmqctl add_user air air
+ rabbitmqctl set_permissions -p AIR air '.*' '.*' '.*'
+
+
+Ideas / ToDo
+
+[ ] Consider a broadcast message asking about available services.
+
+
+
