@@ -16,7 +16,10 @@ class Animal(object):
         print args
         print "kwargs"
         print kwargs
-        return self.noise * kwargs['count']
+        if 'count' in kwargs:
+            return self.noise * kwargs['count']
+        else:
+            return self.noise
 
 def shout(*args, **kwargs):
     print "In shout"
@@ -24,7 +27,11 @@ def shout(*args, **kwargs):
     print args
     print "kwargs"
     print kwargs
-    return "hey!" * kwargs['count']
+    if 'count' in kwargs:
+        return "hey!" * kwargs['count']
+    else:
+        return "hey!"
+
 
 
 
