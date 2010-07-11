@@ -1,0 +1,7 @@
+source "http://rubygems.org"
+gem 'rspec'
+gem 'amqp', :git => "git://github.com/lbt/amqp.git"
+gem 'json'
+gem 'yajl-ruby'
+gem 'rufus-json'
+gem 'eventmachine'
