@@ -19,6 +19,8 @@ import simplejson as json
 import uuid
 import time
 
+import pprint
+
 class ServiceExists(Exception):
     pass
 
@@ -136,44 +138,59 @@ class Server(AMQPServer):
         """
         # First use the routing key to get the service_name
 #        print "message body: %s" % msg.body
-#        print "message props"
-#        for key, val in msg.properties.items():
-#            print '%s: %s' % (key, str(val))
-#        for key, val in msg.delivery_info.items():
-#            print '> %s: %s' % (key, str(val))
-        rkey = msg.delivery_info['routing_key']
-        if rkey in self.lookup:
-            fn = self.lookup[rkey]
-        else:
-            raise Exception("Unknown service: %s" % rkey)
+        print "message props"
+        for key, val in msg.properties.items():
+            print '%s: %s' % (key, str(val))
+        for key, val in msg.delivery_info.items():
+            print '> %s: %s' % (key, str(val))
 
-        # Acknowledge now we've found it
-        msg.channel.basic_ack(msg.delivery_tag)
+        try: # catch malformed msg
+            rkey = msg.delivery_info['routing_key']
+            if rkey in self.lookup:
+                fn = self.lookup[rkey]
+            else:
+                raise Exception("Unknown service: %s" % rkey)
 
-        h = json.loads(msg.body)
+            # Acknowledge now we've found it
+            msg.channel.basic_ack(msg.delivery_tag)
 
-        # Don't bother if we've passed the deadline
-        deadline = h['deadline']
-        if deadline and time.time() > deadline + 3: # Allow for a little drift
-            return
+            h = json.loads(msg.body)
 
-        args = h["args"]
-        # Ensure kwargs are not unicode: http://bugs.python.org/issue4978
-        kwargs = dict([(k.encode('ascii','ignore'), v) for k, v in h["kwargs"].items()])
+            # Don't bother if we've passed the deadline
+            # Allow for a little drift
+            if h['deadline'] and time.time() > h['deadline'] + 3:
+                return
 
-        # call the function
-        r = fn(*args, **kwargs)
+            args = h["args"]
+            if not isinstance(args, list):
+                args=[]
 
-        # Don't bother to reply if we've passed the deadline
-        deadline = h['deadline']
-        if deadline and time.time() > deadline + 3: # Allow for a little drift
-            return
+            kwargs = h["kwargs"]
+            # Ensure kwargs are not unicode: http://bugs.python.org/issue4978
+            if isinstance(kwargs, dict):
+                kwargs = dict([(k.encode('ascii','ignore'), v) for k, v in kwargs.items()])
+            else:
+                kwargs={}
 
-        reply_body = {"msgID": h['msgID'],
-                      "return": r
-                      }
-        reply = amqp.Message(json.dumps(reply_body), delivery_mode=2)
+            # call the function
+            r = fn(*args, **kwargs)
 
-        # Send it back to the requestor
-        self.chan.basic_publish(reply, exchange='AIR-response',
-                                routing_key=msg.properties["reply_to"])
+            # Don't bother to reply if we've passed the deadline
+            # Allow for a little drift
+            if h['deadline'] and time.time() > h['deadline'] + 3:
+                return
+
+            reply_body = {"msgID": h['msgID'],
+                          "return": r
+                          }
+            reply = amqp.Message(json.dumps(reply_body), delivery_mode=2)
+
+            # Send it back to the requestor
+            self.chan.basic_publish(reply, exchange='AIR-response',
+                                    routing_key=msg.properties["reply_to"])
+
+        except KeyError: # malformed msg
+            print "Exception whilst handling message:"
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(h)
+#            raise e
