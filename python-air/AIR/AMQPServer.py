@@ -19,4 +19,8 @@ class AMQPServer(object):
                                      password=self.pw,
                                      virtual_host=self.vhost,
                                      insist=False)
+        if self.conn == None:
+            raise Exception("No connection")
         self.chan = self.conn.channel()
+        if self.chan == None:
+            raise Exception("No channel")
