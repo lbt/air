@@ -28,17 +28,17 @@ def shout(*args, **kwargs):
     print "kwargs"
     print kwargs
     if 'count' in kwargs:
-        return "hey!" * kwargs['count']
+        return "hey! " * kwargs['count']
     else:
         return "hey!"
 
 
 
 
-fido=Animal("bark")
-fluffy=Animal("meow")
+fido=Animal("bark ")
+fluffy=Animal("meow ")
 
-srv = Server(amqp_host = "rmq", amqp_user = "air",
+srv = Server(amqp_host = "amqpvm", amqp_user = "air",
                  amqp_pass = "air", amqp_vhost = "AIR")
 
 srv.register("dog", fido.shout)

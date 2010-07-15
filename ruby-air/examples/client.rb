@@ -7,14 +7,14 @@ Bundler.setup
 $LOAD_PATH << './lib'
 require 'AIR/Client'
 
-fido = AIR::Client.new(:host => "rmq", :user => "air",
+air_server = AIR::Client.new(:host => "amqpvm", :user => "air",
                        :pass => "air", :vhost => "AIR")
 
-puts fido.call("dog", :timeout => nil, :count => 5)
-puts fido.call("cat", :timeout => nil, :count => 20)
-puts fido.call("man", :timeout => nil, :count => 10)
+puts air_server.call("dog", :timeout => nil, :count => 5)
+puts air_server.call("cat", :timeout => nil, :count => 20)
+puts air_server.call("man", :timeout => nil, :count => 10)
 begin
-    puts fido.call("squirrel", :timeout => 5.0, :count => 20)
+    puts air_server.call("squirrel", :timeout => 5.0, :count => 20)
 rescue AIR::Timeout
     puts "No answer"
 end
