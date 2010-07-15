@@ -1,0 +1,32 @@
+Source: libair-ruby
+Section: libs
+Priority: optional
+Maintainer: David Greaves <david@dgreaves.com>
+Build-Depends: cdbs, ruby-pkg-tools, debhelper (>= 5)
+Build-Depends-Indep: ruby-pkg-tools, ruby1.8, ruby1.9.1
+Standards-Version: 3.8.1.0
+
+Package: libair-ruby
+Architecture: all
+Depends: ${misc:Depends}, libair-ruby1.8
+Description: AMQP Interoperable RPC
+ AIR is a library to provide simple RPC semantics over AMQP for
+ multiple languages interpreters.
+ .
+ This package is an empty dummy package that always depends on a package built
+ for Debian's default Ruby version.
+
+Package: libair-ruby1.8
+Architecture: all
+Depends: ${misc:Depends}, ruby1.8
+Description: AMQP Interoperable RPC
+ AIR is a library to provide simple RPC semantics over AMQP for
+ multiple languages interpreters.
+
+Package: libair-ruby1.9.1
+Architecture: all
+Depends: ${misc:Depends}, ruby1.9.1
+Description: AMQP Interoperable RPC
+ AIR is a library to provide simple RPC semantics over AMQP for
+ multiple languages interpreters.
+
