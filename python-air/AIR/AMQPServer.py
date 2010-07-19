@@ -1,6 +1,9 @@
 import sys, traceback
 from amqplib import client_0_8 as amqp
-import simplejson as json
+try:
+     import simplejson as json
+except ImportError:
+     import json
 
 class AMQPServer(object):
     """

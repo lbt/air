@@ -15,7 +15,10 @@ from AIR.AMQPServer import AMQPServer
 import sys, traceback
 from amqplib import client_0_8 as amqp
 from amqplib.client_0_8 import AMQPChannelException, Timeout
-import simplejson as json
+try:
+     import simplejson as json
+except ImportError:
+     import json
 import uuid
 import time
 
