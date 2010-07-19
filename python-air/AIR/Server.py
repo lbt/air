@@ -55,21 +55,41 @@ class Server(AMQPServer):
 
         # Assert the existence of AIR request exchange
         try:
-            self.chan.exchange_delete(exchange="AIR-request", if_unused=True)
-        except AMQPChannelException, e:
-            # the channel was deleted.. need to recreate
-            raise e
-        self.chan.exchange_declare(exchange="AIR-request", type="direct",
+            self.chan.exchange_declare(exchange="AIR-request", type="direct",
                                    durable=True,  auto_delete=False)
+        except AMQPChannelException, e:
+            try:
+                print """
+                      AIR-request exchange is misconfigured.
+                      Attempting to delete it.  This will only work if
+                      there are no clients or servers using the
+                      exchange
+                      """
+                self.chan.exchange_delete(exchange="AIR-request")
+                self.chan.exchange_declare(exchange="AIR-request", type="direct",
+                                           durable=True,  auto_delete=False)
+            except AMQPChannelException, e:
+                # the channel was deleted.. need to recreate
+                raise e
 
         # ... and the response exchange
         try:
-            self.chan.exchange_delete(exchange="AIR-response", if_unused=True)
+            self.chan.exchange_declare(exchange="AIR-response", type="direct",
+                                       durable=False,  auto_delete=False)
         except AMQPChannelException, e:
-            # the channel was deleted.. need to recreate
-            raise e
-        self.chan.exchange_declare(exchange="AIR-response", type="direct",
-                                   durable=False,  auto_delete=False)
+            try:
+                print """
+                      AIR-response exchange is misconfigured.
+                      Attempting to delete it.  This will only work if
+                      there are no clients or servers using the
+                      exchange
+                      """
+                self.chan.exchange_delete(exchange="AIR-response", if_unused=True)
+                self.chan.exchange_declare(exchange="AIR-response", type="direct",
+                                           durable=False,  auto_delete=False)
+            except AMQPChannelException, e:
+                # the channel was deleted.. need to recreate
+                raise e
 
         # Create a transient queue which this Server will receive all
         # incoming calls on for non-shared services
